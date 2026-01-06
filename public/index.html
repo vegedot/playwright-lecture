@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playwright デモページ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .checkbox-group {
+            margin: 10px 0;
+        }
+
+        .checkbox-group label {
+            display: inline-block;
+            margin-right: 15px;
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .item-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .item-list li {
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            padding: 5px 15px;
+            font-size: 14px;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Playwright テストデモページ</h1>
+        <p class="subtitle">様々なテスト要素のサンプル</p>
+
+        <!-- ボタンとクリックイベント -->
+        <div class="section">
+            <h2>1. ボタンとクリックイベント</h2>
+            <button id="clickBtn">クリックしてください</button>
+            <button id="doubleClickBtn">ダブルクリック</button>
+            <button id="disabledBtn" disabled>無効なボタン</button>
+            <div id="clickResult" class="result"></div>
+        </div>
+
+        <!-- フォーム入力 -->
+        <div class="section">
+            <h2>2. フォーム入力</h2>
+            <form id="testForm">
+                <label for="username">ユーザー名:</label>
+                <input type="text" id="username" name="username" placeholder="ユーザー名を入力">
+
+                <label for="email">メールアドレス:</label>
+                <input type="email" id="email" name="email" placeholder="email@example.com">
+
+                <label for="age">年齢:</label>
+                <input type="number" id="age" name="age" min="0" max="120">
+
+                <label for="country">国:</label>
+                <select id="country" name="country">
+                    <option value="">選択してください</option>
+                    <option value="japan">日本</option>
+                    <option value="usa">アメリカ</option>
+                    <option value="uk">イギリス</option>
+                    <option value="china">中国</option>
+                </select>
+
+                <label>趣味:</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="hobby" value="reading"> 読書</label>
+                    <label><input type="checkbox" name="hobby" value="music"> 音楽</label>
+                    <label><input type="checkbox" name="hobby" value="sports"> スポーツ</label>
+                </div>
+
+                <label for="message">メッセージ:</label>
+                <textarea id="message" name="message" rows="4" placeholder="メッセージを入力"></textarea>
+
+                <button type="submit">送信</button>
+                <button type="reset">リセット</button>
+            </form>
+            <div id="formResult" class="result"></div>
+        </div>
+
+        <!-- リンクとナビゲーション -->
+        <div class="section">
+            <h2>3. リンクとナビゲーション</h2>
+            <p>
+                <a href="about.html" id="aboutLink">Aboutページへ</a> |
+                <a href="https://playwright.dev/" target="_blank" id="externalLink">Playwright公式サイト</a> |
+                <a href="#section4" id="anchorLink">セクション4へジャンプ</a>
+            </p>
+        </div>
+
+        <!-- 動的コンテンツ -->
+        <div class="section" id="section4">
+            <h2>4. 動的コンテンツ</h2>
+            <button id="addItemBtn">アイテムを追加</button>
+            <button id="clearListBtn">リストをクリア</button>
+            <ul id="itemList" class="item-list"></ul>
+            <div id="itemCount" style="margin-top: 10px; font-weight: bold;">アイテム数: 0</div>
+        </div>
+
+        <!-- テーブル -->
+        <div class="section">
+            <h2>5. テーブルデータ</h2>
+            <table id="userTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>名前</th>
+                        <th>役職</th>
+                        <th>状態</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>田中太郎</td>
+                        <td>エンジニア</td>
+                        <td>アクティブ</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>佐藤花子</td>
+                        <td>デザイナー</td>
+                        <td>アクティブ</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>鈴木一郎</td>
+                        <td>マネージャー</td>
+                        <td>休暇中</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- モーダル -->
+        <div class="section">
+            <h2>6. モーダルダイアログ</h2>
+            <button id="openModalBtn">モーダルを開く</button>
+        </div>
+
+        <!-- 待機とタイミング -->
+        <div class="section">
+            <h2>7. 待機とタイミング</h2>
+            <button id="delayedBtn">3秒後にメッセージ表示</button>
+            <div id="delayedResult" class="result"></div>
+        </div>
+    </div>
+
+    <!-- モーダル -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2>モーダルダイアログ</h2>
+            <p>これはモーダルダイアログの例です。</p>
+            <button id="closeModalBtn">閉じる</button>
+        </div>
+    </div>
+
+    <script>
+        let itemCounter = 0;
+
+        // クリックイベント
+        document.getElementById('clickBtn').addEventListener('click', function() {
+            const result = document.getElementById('clickResult');
+            result.textContent = 'ボタンがクリックされました！';
+            result.classList.add('show');
+        });
+
+        document.getElementById('doubleClickBtn').addEventListener('dblclick', function() {
+            const result = document.getElementById('clickResult');
+            result.textContent = 'ダブルクリックされました！';
+            result.classList.add('show');
+        });
+
+        // フォーム送信
+        document.getElementById('testForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            const hobbies = formData.getAll('hobby');
+            data.hobby = hobbies;
+
+            const result = document.getElementById('formResult');
+            result.innerHTML = '<strong>送信されたデータ:</strong><br>' + JSON.stringify(data, null, 2);
+            result.classList.add('show');
+        });
+
+        // アイテム追加
+        document.getElementById('addItemBtn').addEventListener('click', function() {
+            itemCounter++;
+            const list = document.getElementById('itemList');
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <span>アイテム ${itemCounter}</span>
+                <button class="delete-btn" onclick="deleteItem(this)">削除</button>
+            `;
+            li.setAttribute('data-item-id', itemCounter);
+            list.appendChild(li);
+            updateItemCount();
+        });
+
+        // リストクリア
+        document.getElementById('clearListBtn').addEventListener('click', function() {
+            document.getElementById('itemList').innerHTML = '';
+            itemCounter = 0;
+            updateItemCount();
+        });
+
+        function deleteItem(btn) {
+            btn.closest('li').remove();
+            updateItemCount();
+        }
+
+        function updateItemCount() {
+            const count = document.getElementById('itemList').children.length;
+            document.getElementById('itemCount').textContent = `アイテム数: ${count}`;
+        }
+
+        // モーダル
+        document.getElementById('openModalBtn').addEventListener('click', function() {
+            document.getElementById('modal').classList.add('show');
+        });
+
+        document.getElementById('closeModalBtn').addEventListener('click', function() {
+            document.getElementById('modal').classList.remove('show');
+        });
+
+        // 遅延表示
+        document.getElementById('delayedBtn').addEventListener('click', function() {
+            const btn = this;
+            const result = document.getElementById('delayedResult');
+            btn.disabled = true;
+            result.textContent = '読み込み中...';
+            result.classList.add('show');
+
+            setTimeout(function() {
+                result.textContent = '3秒経過しました！データが表示されました。';
+                btn.disabled = false;
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
